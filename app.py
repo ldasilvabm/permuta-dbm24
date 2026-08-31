@@ -17,8 +17,12 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# Criação automática do banco de dados na inicialização
+# Apaga o banco corrompido antigo e cria um novo limpo automaticamente
 with app.app_context():
+    import os
+    db_path = os.path.join(basedir, 'database.db')
+    if os.path.exists(db_path):
+        os.remove(db_path)
     db.create_all()
 
 # Modelo de Usuário (Militar)
