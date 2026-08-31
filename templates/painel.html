@@ -1,154 +1,183 @@
-
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel - Permutas DBM 2/4</title>
+    <title>Painel Operacional - DBM 2/4</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; background-color: #0a0a0a; color: white; margin: 0; padding: 20px; }
-        .container { max-width: 950px; margin: 0 auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
-        .btn-sair { background-color: #333; color: white; padding: 8px 12px; text-decoration: none; border-radius: 4px; font-size: 14px; }
-        .btn-sair:hover { background-color: #555; }
-        .card { background-color: #111; padding: 20px; border-radius: 8px; border: 1px solid #333; margin-bottom: 20px; }
-        input, select { width: 100%; padding: 10px; margin: 8px 0 15px 0; background-color: #222; border: 1px solid #444; color: white; border-radius: 4px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background-color: #e53935; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        button:hover { background-color: #c62828; }
-        .flash { color: #fbc02d; margin-bottom: 15px; font-size: 14px; background: #222; padding: 10px; border-left: 4px solid #fbc02d; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { text-align: left; padding: 10px; border-bottom: 1px solid #333; font-size: 13px; }
-        th { color: #888; font-size: 11px; text-transform: uppercase; }
-        .btn-acao { padding: 5px 10px; font-size: 11px; text-decoration: none; border-radius: 3px; font-weight: bold; margin-right: 5px; display: inline-block; }
-        .btn-aprovar { background-color: #2e7d32; color: white; }
-        .btn-negar { background-color: #c62828; color: white; }
-        .btn-pdf { background-color: #1565c0; color: white; }
+        body { background-color: #121212; color: #e0e0e0; }
+        .card { background-color: #1e1e1e; border: 1px solid #333; color: #fff; }
+        .form-control, .form-select { background-color: #2b2b2b; border: 1px solid #444; color: #fff; }
+        .form-control:focus, .form-select:focus { background-color: #2b2b2b; color: #fff; border-color: #dc3545; box-shadow: none; }
+        table { color: #fff !important; }
     </style>
 </head>
-<body>
+<body class="p-4">
     <div class="container">
-        <div class="header">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
             <div>
-                <h2 style="margin: 0; color: #e53935;">Painel Operacional</h2>
-                <span style="color: #888; font-size: 14px;">{{ current_user.graduacao }} {{ current_user.nome }} | DBM 2/4</span>
+                <h2 class="text-danger fw-bold">Painel Operacional</h2>
+                <p class="mb-0 text-muted">{{ current_user.graduacao }} {{ current_user.nome }} | DBM 2/4</p>
             </div>
-            <a href="/logout" class="btn-sair">Sair do sistema</a>
+            <a href="/logout" class="btn btn-outline-light btn-sm">Sair do sistema</a>
         </div>
 
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            <div class="flash">⚠️ {{ messages[0] }}</div>
-          {% endif %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
         {% endwith %}
 
-        {% if current_user.is_escalante and pendentes %}
-        <div class="card" style="border-color: #fbc02d;">
-            <h3 style="margin-top: 0; color: #fbc02d;">Cadastros Pendentes de Aprovação</h3>
-            <table>
-                <tr>
-                    <th>Grad / Nome</th>
-                    <th>RG</th>
-                    <th>E-mail</th>
-                    <th>Ação</th>
-                </tr>
-                {% for m in pendentes %}
-                <tr>
-                    <td>{{ m.graduacao }} {{ m.nome }}</td>
-                    <td>{{ m.rg }}</td>
-                    <td>{{ m.email }}</td>
-                    <td><a href="/aprovar_militar/{{ m.id }}" class="btn-acao btn-aprovar">Liberar Acesso</a></td>
-                </tr>
-                {% endfor %}
-            </table>
+        <!-- PAINEL DO ESCALANTE (ADMIN) -->
+        {% if current_user.is_admin %}
+        <div class="card shadow mb-4">
+            <div class="card-header bg-danger text-white fw-bold">Painel do Escalante - Gerenciamento da Tropa</div>
+            <div class="card-body">
+                <h5 class="mb-3">Militares Aguardando Aprovação</h5>
+                {% if usuarios_pendentes %}
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Graduação / Nome</th>
+                                    <th>E-mail</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for u in usuarios_pendentes %}
+                                <tr>
+                                    <td>{{ u.graduacao }} {{ u.nome }}</td>
+                                    <td>{{ u.email }}</td>
+                                    <td>
+                                        <a href="/aprovar/{{ u.id }}" class="btn btn-success btn-sm">Aprovar Cadastro</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">Nenhum militar pendente de aprovação no momento.</p>
+                {% endif %}
+
+                <h5 class="mt-4 mb-3">Tropa Cadastrada / Gerenciar Escalantes</h5>
+                <div class="table-responsive">
+                    <table class="table table-dark table-striped align-middle">
+                        <thead>
+                            <tr>
+                                <th>Militar</th>
+                                <th>Status</th>
+                                <th>Função</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in todos_usuarios %}
+                            <tr>
+                                <td>{{ u.graduacao }} {{ u.nome }}</td>
+                                <td>
+                                    {% if u.is_approved %}
+                                        <span class="badge bg-success">Aprovado</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Pendente</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if u.is_admin %}
+                                        <span class="badge bg-danger">Escalante</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Militar</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if u.id != current_user.id %}
+                                        <a href="/toggle_admin/{{ u.id }}" class="btn btn-outline-warning btn-sm">
+                                            {% if u.is_admin %} Remover Escalante {% else %} Promover a Escalante {% endif %}
+                                        </a>
+                                    {% else %}
+                                        <small class="text-muted">(Você)</small>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
         {% endif %}
 
-        <div style="display: flex; gap: 20px;">
-            <div class="card" style="flex: 2;">
-                <h3 style="margin-top: 0;">Solicitar Nova Permuta</h3>
-                <form action="/nova_permuta" method="POST" id="form-permuta">
-                    <label style="font-size: 12px; color: #aaa;">Data do Serviço:</label>
-                    <input type="date" name="data_servico" id="data_servico" required>
-                    
-                    <label style="font-size: 12px; color: #aaa;">Militar Substituto:</label>
-                    <select name="substituto_id" required>
-                        <option value="">Selecione na lista...</option>
-                        {% for militar in militares %}
-                            <option value="{{ militar.id }}">{{ militar.graduacao }} {{ militar.nome }} (RG: {{ militar.rg }})</option>
-                        {% endfor %}
-                    </select>
-                    
-                    <button type="button" onclick="validarPrazos()">Assinar Eletronicamente e Solicitar ></button>
-                </form>
+        <div class="row">
+            <!-- Solicitar Permuta -->
+            <div class="col-md-6 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-body">
+                        <h4 class="card-title mb-3">Solicitar Nova Permuta</h4>
+                        <form>
+                            <div class="mb-3">
+                                <label class="form-label">Data do Serviço:</label>
+                                <input type="date" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Militar Substituto:</label>
+                                <select class="form-select">
+                                    <option>Selecione na lista...</option>
+                                </select>
+                            </div>
+                            <button type="button" class="btn btn-danger w-100">Assinar Eletronicamente e Solicitar &gt;</button>
+                        </form>
+                    </div>
+                </div>
             </div>
 
-            <div class="card" style="flex: 1;">
-                <h3 style="margin-top: 0;">Alterar Senha</h3>
-                <form action="/alterar_senha" method="POST">
-                    <label style="font-size: 12px; color: #aaa;">Senha Atual:</label>
-                    <input type="password" name="senha_atual" placeholder="******" required>
-                    
-                    <label style="font-size: 12px; color: #aaa;">Nova Senha:</label>
-                    <input type="password" name="nova_senha" placeholder="******" required>
-                    
-                    <button type="submit" style="background-color: #333;">Atualizar Senha</button>
-                </form>
+            <!-- Alterar Senha -->
+            <div class="col-md-6 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-body">
+                        <h4 class="card-title mb-3">Alterar Senha</h4>
+                        <form>
+                            <div class="mb-3">
+                                <label class="form-label">Senha Atual:</label>
+                                <input type="password" class="form-control" placeholder="******">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Nova Senha:</label>
+                                <input type="password" class="form-control" placeholder="******">
+                            </div>
+                            <button type="button" class="btn btn-secondary w-100">Atualizar Senha</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card">
-            <h3 style="margin-top: 0;">Fila de Permutas e Controle</h3>
-            <table>
-                <tr>
-                    <th>Data</th>
-                    <th>Sai</th>
-                    <th>Entra</th>
-                    <th>Status</th>
-                    <th>Ações</th>
-                </tr>
-                {% for p in permutas %}
-                <tr>
-                    <td>{{ p.data_servico.strftime('%d/%m/%Y') }}</td>
-                    <td>{{ p.saida.graduacao }} {{ p.saida.nome }}</td>
-                    <td>{{ p.entrada.graduacao }} {{ p.entrada.nome }}</td>
-                    <td><strong style="color: {% if p.status == 'Autorizada' %}#4caf50{% elif p.status == 'Recusada' %}#f44336{% else %}#ff9800{% endif %};">{{ p.status }}</strong></td>
-                    <td>
-                        {% if current_user.is_escalante and p.status == 'Aguardando Escalante' %}
-                            <a href="/avaliar_permuta/{{ p.id }}/aprovar" class="btn-acao btn-aprovar">Autorizar</a>
-                            <a href="/avaliar_permuta/{{ p.id }}/negar" class="btn-acao btn-negar">Recusar</a>
-                        {% endif %}
-                        <a href="/relatorio/{{ p.id }}" class="btn-acao btn-pdf" target="_blank">Baixar PDF</a>
-                    </td>
-                </tr>
-                {% else %}
-                <tr><td colspan="5" style="text-align: center; color: #555; padding: 20px;">Nenhuma permuta registrada.</td></tr>
-                {% endfor %}
-            </table>
+        <!-- Fila de Permutas -->
+        <div class="card shadow">
+            <div class="card-body">
+                <h4 class="card-title mb-3">Fila de Permutas e Controle</h4>
+                <div class="table-responsive">
+                    <table class="table table-dark table-striped text-center">
+                        <thead>
+                            <tr>
+                                <th>DATA</th>
+                                <th>SAI</th>
+                                <th>ENTRA</th>
+                                <th>STATUS</th>
+                                <th>AÇÕES</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="5" class="text-muted py-3">Nenhuma permuta registrada.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
-
-    <script>
-        function validarPrazos() {
-            const dataInput = document.getElementById('data_servico').value;
-            const subInput = document.querySelector('select[name="substituto_id"]').value;
-            
-            if (!dataInput || !subInput) { alert('Preencha a data e o substituto.'); return; }
-            
-            const dataServico = new Date(dataInput + 'T12:00:00');
-            const hoje = new Date();
-            hoje.setHours(0,0,0,0);
-            
-            const diferencaDias = Math.ceil((dataServico.getTime() - hoje.getTime()) / (1000 * 3600 * 24));
-            
-            if (diferencaDias < 2) {
-                alert('BLOQUEIO: Faltam menos de 48 horas para o serviço. Requer liberação do Escalante.');
-                return; 
-            }
-            if (diferencaDias > 30) {
-                if (!confirm('ATENÇÃO: A data escolhida é superior a 30 dias. Confirma que a data está correta?')) return; 
-            }
-            document.getElementById('form-permuta').submit();
-        }
-    </script>
 </body>
 </html>
