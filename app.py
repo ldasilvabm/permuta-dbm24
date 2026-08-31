@@ -7,10 +7,7 @@ import os
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'sua_chave_secreta_aqui'
 
-# Configuração segura do banco de dados SQLite com caminho absoluto
-import os
-
-# Usa a pasta /tmp no Render para garantir permissão total de escrita do SQLite
+# Configuração segura do banco de dados para o Render e ambiente local
 if 'RENDER' in os.environ:
     db_path = '/tmp/database.db'
 else:
@@ -19,19 +16,11 @@ else:
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-
-# Cria o banco de dados limpo utilizando o caminho seguro correto
-with app.app_context():
-    if os.path.exists(db_path):
-        try:
-            os.remove(db_path)
-        except:
-            pass
-    db.create_all()
 
 # Modelo de Usuário (Militar)
 class User(UserMixin, db.Model):
@@ -45,7 +34,11 @@ class User(UserMixin, db.Model):
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
+
+# Criação automática das tabelas de forma segura
+with app.app_context():
+    db.create_all()
 
 # Rota de Login
 @app.route('/', methods=['GET', 'POST'])
@@ -118,7 +111,7 @@ def painel():
 @login_required
 def aprovar(user_id):
     if current_user.is_admin:
-        user = User.query.get(user_id)
+        user = db.session.get(User, user_id)
         if user:
             user.is_approved = True
             db.session.commit()
@@ -130,7 +123,7 @@ def aprovar(user_id):
 @login_required
 def toggle_admin(user_id):
     if current_user.is_admin:
-        user = User.query.get(user_id)
+        user = db.session.get(User, user_id)
         if user and user.id != current_user.id:
             user.is_admin = not user.is_admin
             db.session.commit()
