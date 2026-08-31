@@ -214,6 +214,36 @@
     <div class="card-header bg-danger text-white">
         <h5 class="mb-0">Painel do Escalante - Gerenciamento de Efetivo</h5>
     </div>
+    <!-- Seção de Militares Aguardando Aprovação -->
+        <h5 class="text-warning mb-3">Militares Aguardando Aprovação</h5>
+        {% if usuarios_pendentes %}
+            <div class="table-responsive mb-4">
+                <table class="table table-dark table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>Militar</th>
+                            <th>Email</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in usuarios_pendentes %}
+                        <tr>
+                            <td>{{ u.graduacao }} {{ u.nome }}</td>
+                            <td>{{ u.email }}</td>
+                            <td>
+                                <a href="{{ url_for('aprovar', user_id=u.id) }}" class="btn btn-sm btn-success">Aprovar Cadastro</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted">Nenhum militar pendente de aprovação no momento.</p>
+        {% endif %}
+
+        <h5 class="text-light mb-3 mt-4">Tropa Cadastrada / Gerenciar Escalantes</h5>
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-dark table-striped align-middle">
