@@ -7,7 +7,7 @@ import os
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'sua_chave_secreta_aqui'
 
-# Configuração do banco de dados SQLite
+# Configuração segura do banco de dados SQLite com caminho absoluto
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -17,6 +17,10 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+# Criação automática do banco de dados na inicialização
+with app.app_context():
+    db.create_all()
+
 # Modelo de Usuário (Militar)
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -24,8 +28,8 @@ class User(UserMixin, db.Model):
     graduacao = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     senha = db.Column(db.String(200), nullable=False)
-    is_admin = db.Column(db.Boolean, default=False) # True para Escalante
-    is_approved = db.Column(db.Boolean, default=False) # True para aprovado
+    is_admin = db.Column(db.Boolean, default=False)
+    is_approved = db.Column(db.Boolean, default=False)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -63,7 +67,6 @@ def registro():
             flash('Este e-mail já está cadastrado.', 'danger')
             return redirect(url_for('registro'))
         
-        # Se for o primeiro usuário a se cadastrar, já nasce Escalante e aprovado
         total_users = User.query.count()
         is_first = (total_users == 0)
         
@@ -116,7 +119,7 @@ def aprovar(user_id):
 def toggle_admin(user_id):
     if current_user.is_admin:
         user = User.query.get(user_id)
-        if user and user.id != current_user.id: # Evita remover a si mesmo por acidente
+        if user and user.id != current_user.id:
             user.is_admin = not user.is_admin
             db.session.commit()
             flash(f'Permissões de Escalante atualizadas para {user.nome}.', 'success')
@@ -128,10 +131,6 @@ def toggle_admin(user_id):
 def logout():
     logout_user()
     return redirect(url_for('login'))
-
-# Criação automática do banco de dados na inicialização do Render
-with app.app_context():
-    db.create_all()
 
 if __name__ == '__main__':
     app.run(debug=True)
