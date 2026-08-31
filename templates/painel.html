@@ -116,18 +116,21 @@
                 <div class="card shadow h-100">
                     <div class="card-body">
                         <h4 class="card-title mb-3">Solicitar Nova Permuta</h4>
-                        <form>
+                        <form action="/solicitar_permuta" method="POST">
                             <div class="mb-3">
                                 <label class="form-label">Data do Serviço:</label>
-                                <input type="date" class="form-control">
+                                <input type="date" name="data_servico" class="form-control" required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Militar Substituto:</label>
-                                <select class="form-select">
-                                    <option>Selecione na lista...</option>
+                                <select name="substituto" class="form-select" required>
+                                    <option value="" disabled selected>Selecione na lista...</option>
+                                    {% for m in mitares_aprovados %}
+                                        <option value="{{ m.id }}">{{ m.graduacao }} {{ m.nome }} (RG: {{ m.rg }})</option>
+                                    {% endfor %}
                                 </select>
                             </div>
-                            <button type="button" class="btn btn-danger w-100">Assinar Eletronicamente e Solicitar &gt;</button>
+                            <button type="submit" class="btn btn-danger w-100">Assinar Eletronicamente e Solicitar &gt;</button>
                         </form>
                     </div>
                 </div>
@@ -159,20 +162,47 @@
             <div class="card-body">
                 <h4 class="card-title mb-3">Fila de Permutas e Controle</h4>
                 <div class="table-responsive">
-                    <table class="table table-dark table-striped text-center">
+                    <table class="table table-dark table-striped text-center align-middle">
                         <thead>
                             <tr>
                                 <th>DATA</th>
-                                <th>SAI</th>
-                                <th>ENTRA</th>
+                                <th>SAI (Solicitante)</th>
+                                <th>ENTRA (Substituto)</th>
                                 <th>STATUS</th>
                                 <th>AÇÕES</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td colspan="5" class="text-muted py-3">Nenhuma permuta registrada.</td>
-                            </tr>
+                            {% if permutas %}
+                                {% for p in permutas %}
+                                <tr>
+                                    <td>{{ p.data_servico }}</td>
+                                    <td>{{ p.solicitante.graduacao }} {{ p.solicitante.nome }}</td>
+                                    <td>{{ p.substituto.graduacao }} {{ p.substituto.nome }}</td>
+                                    <td>
+                                        {% if p.status == 'Autorizada' %}
+                                            <span class="badge bg-success">Autorizada</span>
+                                        {% elif p.status == 'Rejeitada' %}
+                                            <span class="badge bg-danger">Rejeitada</span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">Pendente</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if current_user.is_admin and p.status == 'Pendente' %}
+                                            <a href="/autorizar_permuta/{{ p.id }}" class="btn btn-success btn-sm me-1">Autorizar</a>
+                                            <a href="/rejeitar_permuta/{{ p.id }}" class="btn btn-outline-danger btn-sm">Rejeitar</a>
+                                        {% else %}
+                                            <small class="text-muted">-</small>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-muted py-3">Nenhuma permuta registrada.</td>
+                                </tr>
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>
