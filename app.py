@@ -173,7 +173,7 @@ def solicitar_permuta():
             solicitante_id=current_user.id,
             substituto_id=int(substituto_id),
             data_servico=data_servico,
-            status='Aguardando Substituto'
+            status='TESTE SUBST'
         )
         db.session.add(nova_permuta)
         db.session.commit()
