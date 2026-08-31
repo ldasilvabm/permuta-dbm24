@@ -116,10 +116,10 @@
                 <div class="card shadow h-100">
                     <div class="card-body">
                         <h4 class="card-title mb-3">Solicitar Nova Permuta</h4>
-                        <form>
+                        <form action="/solicitar_permuta" method="POST">
                             <div class="mb-3">
                                 <label class="form-label">Data do Serviço:</label>
-                                <input type="date" class="form-control">
+                              <input type="date" name="data_servico" class="form-control" required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Militar Substituto:</label>
@@ -130,7 +130,7 @@
                         {% endfor %}
                     </select>
                             </div>
-                            <button type="button" class="btn btn-danger w-100">Assinar Eletronicamente e Solicitar &gt;</button>
+                            <button type="submit" class="btn btn-danger w-100">Assinar Eletronicamente e Solicitar &gt;</button>
                         </form>
                     </div>
                 </div>
