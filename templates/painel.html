@@ -123,12 +123,12 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Militar Substituto:</label>
-                                <select class="form-select">
-                                    <option value="" disabled selected>Selecione na lista...</option>
-                    {% for m in mitares_aprovados %}
-                        <option value="{{ m.id }}">{{ m.graduacao }} {{ m.nome }} (RG: {{ m.rg }})</option>
-                    {% endfor %}
-                                </select>
+                              <select name="substituto" class="form-select" required>
+                        <option value="" disabled selected>Selecione na lista...</option>
+                        {% for m in mitares_aprovados %}
+                            <option value="{{ m.id }}">{{ m.graduacao }} {{ m.nome }} (RG: {{ m.rg }})</option>
+                        {% endfor %}
+                    </select>
                             </div>
                             <button type="button" class="btn btn-danger w-100">Assinar Eletronicamente e Solicitar &gt;</button>
                         </form>
