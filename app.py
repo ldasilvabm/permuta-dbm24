@@ -30,7 +30,15 @@ class User(UserMixin, db.Model):
     senha = db.Column(db.String(200), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
     is_approved = db.Column(db.Boolean, default=False)
+class Permuta(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    solicitante_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    substituto_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    data_servico = db.Column(db.String(20), nullable=False)
+    status = db.Column(db.String(20), default='Pendente')
 
+    solicitante = db.relationship('User', foreign_keys=[solicitante_id])
+    substituto = db.relationship('User', foreign_keys=[substituto_id])
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
@@ -106,16 +114,26 @@ class Permuta(db.Model):
 def painel():
     usuarios_pendentes = []
     todos_usuarios = []
-    mitares_aprovados = []
+    
     if current_user.is_admin:
         usuarios_pendentes = User.query.filter_by(is_approved=False).all()
         todos_usuarios = User.query.all()
-    
-    # Pega todos os usuários aprovados exceto o próprio usuário logado para a lista de permuta
-    mitares_aprovados = User.query.filter(User.is_approved == True, User.id != current_user.id).all()
-    
-    return render_template('painel.html', usuarios_pendentes=usuarios_pendentes, todos_usuarios=todos_usuarios, mitares_aprovados=mitares_aprovados)
+        permutas = Permuta.query.all()  # Escalante vê todas as permutas
+    else:
+        permutas = Permuta.query.filter(
+            (Permuta.solicitante_id == current_user.id) | 
+            (Permuta.substituto_id == current_user.id)
+        ).all()  # Militar vê apenas as suas
 
+    mitares_aprovados = User.query.filter(User.is_approved == True, User.id != current_user.id).all()
+
+    return render_template(
+        'painel.html', 
+        usuarios_pendentes=usuarios_pendentes, 
+        todos_usuarios=todos_usuarios, 
+        mitares_aprovados=mitares_aprovados,
+        permutas=permutas
+    )
 @app.route('/aprovar/<int:user_id>')
 @login_required
 def aprovar(user_id):
