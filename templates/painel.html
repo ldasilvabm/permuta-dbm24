@@ -191,7 +191,7 @@
     {% if p.status == 'Aguardando Substituto' and p.substituto_id == current_user.id %}
         <a href="{{ url_for('assinar_substituto', permuta_id=p.id) }}" class="btn btn-sm btn-success me-1">Assinar e Aceitar</a>
         <a href="{{ url_for('recusar_substituto', permuta_id=p.id) }}" class="btn btn-sm btn-outline-danger">Recusar</a>
-    {% elif current_user.is_admin and p.status == 'Pendente' %}
+    {% elif current_user.is_admin and (p.status == 'Pendente' or p.status == 'Aguardando Escalante') %}
         <a href="{{ url_for('autorizar_permuta', permuta_id=p.id) }}" class="btn btn-sm btn-success me-1">Autorizar</a>
         <a href="{{ url_for('rejeitar_permuta', permuta_id=p.id) }}" class="btn btn-sm btn-outline-danger">Rejeitar</a>
     {% else %}
