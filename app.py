@@ -178,7 +178,7 @@ def solicitar_permuta():
         db.session.add(nova_permuta)
         db.session.commit()
         
-        flash('Permuta solicitada com sucesso e enviada para análise do Escalante!', 'success')
+        flash('Permuta solicitada com sucesso! Aguardando assinatura eletrônica do substituto.', 'success')
         return redirect(url_for('painel'))
         
     except Exception as e:
