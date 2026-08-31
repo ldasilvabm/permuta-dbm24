@@ -7,7 +7,6 @@ import os
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'sua_chave_secreta_aqui'
 
-# Configuração segura do banco de dados para o Render e ambiente local
 if 'RENDER' in os.environ:
     db_path = '/tmp/database.db'
 else:
@@ -22,11 +21,11 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# Modelo de Usuário (Militar)
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
     graduacao = db.Column(db.String(50), nullable=False)
+    rg = db.Column(db.String(20), unique=True, nullable=True)
     email = db.Column(db.String(100), unique=True, nullable=False)
     senha = db.Column(db.String(200), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
@@ -36,11 +35,9 @@ class User(UserMixin, db.Model):
 def load_user(user_id):
     return db.session.get(User, int(user_id))
 
-# Criação automática das tabelas de forma segura
 with app.app_context():
     db.create_all()
 
-# Rota de Login
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -58,12 +55,12 @@ def login():
             flash('E-mail ou senha incorretos.', 'danger')
     return render_template('login.html')
 
-# Rota de Registro
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
     if request.method == 'POST':
         nome = request.form.get('nome')
         graduacao = request.form.get('graduacao')
+        rg = request.form.get('rg')
         email = request.form.get('email')
         senha = request.form.get('senha')
         
@@ -79,6 +76,7 @@ def registro():
         new_user = User(
             nome=nome, 
             graduacao=graduacao, 
+            rg=rg,
             email=email, 
             senha=hashed_password,
             is_admin=is_first,
@@ -95,18 +93,21 @@ def registro():
         
     return render_template('registro.html')
 
-# Painel Principal
 @app.route('/painel')
 @login_required
 def painel():
     usuarios_pendentes = []
     todos_usuarios = []
+    mitares_aprovados = []
     if current_user.is_admin:
         usuarios_pendentes = User.query.filter_by(is_approved=False).all()
         todos_usuarios = User.query.all()
-    return render_template('painel.html', usuarios_pendentes=usuarios_pendentes, todos_usuarios=todos_usuarios)
+    
+    # Pega todos os usuários aprovados exceto o próprio usuário logado para a lista de permuta
+    mitares_aprovados = User.query.filter(User.is_approved == True, User.id != current_user.id).all()
+    
+    return render_template('painel.html', usuarios_pendentes=usuarios_pendentes, todos_usuarios=todos_usuarios, mitares_aprovados=mitares_aprovados)
 
-# Aprovar Cadastro
 @app.route('/aprovar/<int:user_id>')
 @login_required
 def aprovar(user_id):
@@ -118,7 +119,6 @@ def aprovar(user_id):
             flash(f'Cadastro de {user.nome} aprovado!', 'success')
     return redirect(url_for('painel'))
 
-# Promover ou Remover Escalante
 @app.route('/toggle_admin/<int:user_id>')
 @login_required
 def toggle_admin(user_id):
@@ -130,7 +130,6 @@ def toggle_admin(user_id):
             flash(f'Permissões de Escalante atualizadas para {user.nome}.', 'success')
     return redirect(url_for('painel'))
 
-# Logout
 @app.route('/logout')
 @login_required
 def logout():
