@@ -8,21 +8,29 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'sua_chave_secreta_aqui'
 
 # Configuração segura do banco de dados SQLite com caminho absoluto
-basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database.db')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+import os
 
+# Usa a pasta /tmp no Render para garantir permissão total de escrita do SQLite
+if 'RENDER' in os.environ:
+    db_path = '/tmp/database.db'
+else:
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    db_path = os.path.join(basedir, 'database.db')
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# Apaga o banco corrompido antigo e cria um novo limpo automaticamente
+# Cria o banco de dados limpo utilizando o caminho seguro correto
 with app.app_context():
-    import os
-    db_path = os.path.join(basedir, 'database.db')
     if os.path.exists(db_path):
-        os.remove(db_path)
+        try:
+            os.remove(db_path)
+        except:
+            pass
     db.create_all()
 
 # Modelo de Usuário (Militar)
