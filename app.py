@@ -92,7 +92,15 @@ def registro():
         return redirect(url_for('login'))
         
     return render_template('registro.html')
+class Permuta(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    solicitante_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    substituto_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    data_servico = db.Column(db.String(20), nullable=False)
+    status = db.Column(db.String(20), default='Pendente')
 
+    solicitante = db.relationship('User', foreign_keys=[solicitante_id])
+    substituto = db.relationship('User', foreign_keys=[substituto_id])
 @app.route('/painel')
 @login_required
 def painel():
@@ -135,12 +143,43 @@ def toggle_admin(user_id):
 def solicitar_permuta():
     data_servico = request.form.get('data_servico')
     substituto_id = request.form.get('substituto')
-
+    
     if not data_servico or not substituto_id:
         flash('Preencha a data e selecione o militar substituto.', 'danger')
         return redirect(url_for('painel'))
+    
+    nova_permuta = Permuta(
+        solicitante_id=current_user.id,
+        substituto_id=int(substituto_id),
+        data_servico=data_servico,
+        status='Pendente'
+    )
+    db.session.add(nova_permuta)
+    db.session.commit()
+    
+    flash('Permuta solicitada com sucesso e enviada para análise do Escalante!', 'success')
+    return redirect(url_for('painel'))
 
-    flash(f'Permuta solicitada com sucesso para o dia {data_servico}!', 'success')
+@app.route('/autorizar_permuta/<int:permuta_id>')
+@login_required
+def autorizar_permuta(permuta_id):
+    if current_user.is_admin:
+        p = db.session.get(Permuta, permuta_id)
+        if p:
+            p.status = 'Autorizada'
+            db.session.commit()
+            flash('Permuta autorizada com sucesso!', 'success')
+    return redirect(url_for('painel'))
+
+@app.route('/rejeitar_permuta/<int:permuta_id>')
+@login_required
+def rejeitar_permuta(permuta_id):
+    if current_user.is_admin:
+        p = db.session.get(Permuta, permuta_id)
+        if p:
+            p.status = 'Rejeitada'
+            db.session.commit()
+            flash('Permuta rejeitada.', 'warning')
     return redirect(url_for('painel'))
 @app.route('/logout')
 @login_required
