@@ -179,14 +179,15 @@
                                     <td>{{ p.solicitante.graduacao }} {{ p.solicitante.nome }}</td>
                                     <td>{{ p.substituto.graduacao }} {{ p.substituto.nome }}</td>
                                     <td>
-                                        {% if p.status == 'Autorizada' %}
-                                            <span class="badge bg-success">Autorizada</span>
-                                        {% elif p.status == 'Rejeitada' %}
-                                            <span class="badge bg-danger">Rejeitada</span>
-                                        {% else %}
-                                            <span class="badge bg-warning text-dark">Pendente</span>
-                                        {% endif %}
-                                    </td>
+                                       {% if p.status == 'Autorizada' %}
+    <span class="badge bg-success">Autorizada</span>
+{% elif p.status == 'Rejeitada' or p.status == 'Recusada pelo Substituto' %}
+    <span class="badge bg-danger">Rejeitada</span>
+{% elif p.status == 'Aguardando Substituto' %}
+    <span class="badge bg-warning text-dark">Aguardando Substituto</span>
+{% else %}
+    <span class="badge bg-info text-dark">Aguardando Escalante</span>
+{% endif %}
                                   <td>
     {% if p.status == 'Aguardando Substituto' and p.substituto_id == current_user.id %}
         <a href="{{ url_for('assinar_substituto', permuta_id=p.id) }}" class="btn btn-sm btn-success me-1">Assinar e Aceitar</a>
