@@ -129,7 +129,19 @@ def toggle_admin(user_id):
             db.session.commit()
             flash(f'Permissões de Escalante atualizadas para {user.nome}.', 'success')
     return redirect(url_for('painel'))
+# Rota para Solicitar Permuta
+@app.route('/solicitar_permuta', methods=['POST'])
+@login_required
+def solicitar_permuta():
+    data_servico = request.form.get('data_servico')
+    substituto_id = request.form.get('substituto')
 
+    if not data_servico or not substituto_id:
+        flash('Preencha a data e selecione o militar substituto.', 'danger')
+        return redirect(url_for('painel'))
+
+    flash(f'Permuta solicitada com sucesso para o dia {data_servico}!', 'success')
+    return redirect(url_for('painel'))
 @app.route('/logout')
 @login_required
 def logout():
