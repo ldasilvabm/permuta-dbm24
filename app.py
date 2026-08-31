@@ -131,5 +131,6 @@ def logout():
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()
+        db.drop_all()  # Limpa o banco antigo corrompido
+        db.create_all() # Cria as tabelas atualizadas
     app.run(debug=True)
