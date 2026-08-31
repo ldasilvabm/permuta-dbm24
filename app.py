@@ -159,24 +159,30 @@ def toggle_admin(user_id):
 @app.route('/solicitar_permuta', methods=['POST'])
 @login_required
 def solicitar_permuta():
-    data_servico = request.form.get('data_servico')
-    substituto_id = request.form.get('substituto')
-    
-    if not data_servico or not substituto_id:
-        flash('Preencha a data e selecione o militar substituto.', 'danger')
+    try:
+        data_servico = request.form.get('data_servico')
+        substituto_id = request.form.get('substituto')
+        
+        if not data_servico or not substituto_id:
+            flash('Preencha a data e selecione o militar substituto.', 'danger')
+            return redirect(url_for('painel'))
+        
+        nova_permuta = Permuta(
+            solicitante_id=current_user.id,
+            substituto_id=int(substituto_id),
+            data_servico=data_servico,
+            status='Pendente'
+        )
+        db.session.add(nova_permuta)
+        db.session.commit()
+        
+        flash('Permuta solicitada com sucesso e enviada para análise do Escalante!', 'success')
         return redirect(url_for('painel'))
-    
-    nova_permuta = Permuta(
-        solicitante_id=current_user.id,
-        substituto_id=int(substituto_id),
-        data_servico=data_servico,
-        status='Pendente'
-    )
-    db.session.add(nova_permuta)
-    db.session.commit()
-    
-    flash('Permuta solicitada com sucesso e enviada para análise do Escalante!', 'success')
-    return redirect(url_for('painel'))
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Erro ao registrar permuta: {str(e)}', 'danger')
+        return redirect(url_for('painel')))
 
 @app.route('/autorizar_permuta/<int:permuta_id>')
 @login_required
