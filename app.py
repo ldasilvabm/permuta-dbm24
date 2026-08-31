@@ -129,8 +129,9 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
+# Criação automática do banco de dados na inicialização do Render
+with app.app_context():
+    db.create_all()
+
 if __name__ == '__main__':
-    with app.app_context():
-        db.drop_all()  # Limpa o banco antigo corrompido
-        db.create_all() # Cria as tabelas atualizadas
     app.run(debug=True)
