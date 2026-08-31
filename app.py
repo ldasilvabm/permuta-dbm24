@@ -173,7 +173,7 @@ def solicitar_permuta():
             solicitante_id=current_user.id,
             substituto_id=int(substituto_id),
             data_servico=data_servico,
-            status='Pendente'
+            status='Aguardando Substituto'
         )
         db.session.add(nova_permuta)
         db.session.commit()
@@ -185,7 +185,25 @@ def solicitar_permuta():
         db.session.rollback()
         flash(f'Erro ao registrar permuta: {str(e)}', 'danger')
         return redirect(url_for('painel')))
+@app.route('/assinar_substituto/<int:permuta_id>')
+@login_required
+def assinar_substituto(permuta_id):
+    p = db.session.get(Permuta, permuta_id)
+    if p and p.substituto_id == current_user.id and p.status == 'Aguardando Substituto':
+        p.status = 'Pendente'
+        db.session.commit()
+        flash('Permuta assinada com sucesso pelo substituto! Encaminhada para análise do Escalante.', 'success')
+    return redirect(url_for('painel'))
 
+@app.route('/recusar_substituto/<int:permuta_id>')
+@login_required
+def recusar_substituto(permuta_id):
+    p = db.session.get(Permuta, permuta_id)
+    if p and p.substituto_id == current_user.id and p.status == 'Aguardando Substituto':
+        p.status = 'Recusada pelo Substituto'
+        db.session.commit()
+        flash('Você recusou esta solicitação de permuta.', 'warning')
+    return redirect(url_for('painel'))
 @app.route('/autorizar_permuta/<int:permuta_id>')
 @login_required
 def autorizar_permuta(permuta_id):
