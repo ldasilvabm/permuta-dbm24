@@ -1,5 +1,5 @@
 <!-- Fila de Permutas -->
-        <div class="card shadow">
+        <div class="card shadow mb-4">
             <div class="card-body">
                 <h4 class="card-title mb-3">Fila de Permutas e Controle</h4>
                 <div class="table-responsive">
@@ -13,38 +13,38 @@
                                 <th>AÇÕES</th>
                             </tr>
                         </thead>
-                      <tbody>
-            {% if permutas %}
-                {% for p in permutas %}
-                <tr>
-                    <td>{{ p.data_servico }}</td>
-                    <td>{{ p.solicitante.graduacao }} {{ p.solicitante.nome }}</td>
-                    <td>{{ p.substituto.graduacao }} {{ p.substituto.nome }}</td>
-                    <td>
-                        {% if p.status == 'Autorizada' %}
-                            <span class="badge bg-success">Autorizada</span>
-                        {% elif p.status == 'Rejeitada' %}
-                            <span class="badge bg-danger">Rejeitada</span>
-                        {% else %}
-                            <span class="badge bg-warning text-dark">Pendente</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if current_user.is_admin and p.status == 'Pendente' %}
-                            <a href="/autorizar_permuta/{{ p.id }}" class="btn btn-success btn-sm me-1">Autorizar</a>
-                            <a href="/rejeitar_permuta/{{ p.id }}" class="btn btn-outline-danger btn-sm">Rejeitar</a>
-                        {% else %}
-                            <small class="text-muted">-</small>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            {% else %}
-                <tr>
-                    <td colspan="5" class="text-muted py-3">Nenhuma permuta registrada.</td>
-                </tr>
-            {% endif %}
-        </tbody>
+                        <tbody>
+                            {% if permutas %}
+                                {% for p in permutas %}
+                                <tr>
+                                    <td>{{ p.data_servico }}</td>
+                                    <td>{{ p.solicitante.graduacao }} {{ p.solicitante.nome }}</td>
+                                    <td>{{ p.substituto.graduacao }} {{ p.substituto.nome }}</td>
+                                    <td>
+                                        {% if p.status == 'Autorizada' %}
+                                            <span class="badge bg-success">Autorizada</span>
+                                        {% elif p.status == 'Rejeitada' %}
+                                            <span class="badge bg-danger">Rejeitada</span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">Pendente</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if current_user.is_admin and p.status == 'Pendente' %}
+                                            <a href="/autorizar_permuta/{{ p.id }}" class="btn btn-success btn-sm me-1">Autorizar</a>
+                                            <a href="/rejeitar_permuta/{{ p.id }}" class="btn btn-outline-danger btn-sm">Rejeitar</a>
+                                        {% else %}
+                                            <small class="text-muted">-</small>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-muted py-3">Nenhuma permuta registrada.</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
                     </table>
                 </div>
             </div>
