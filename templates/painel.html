@@ -207,6 +207,50 @@
                     </table>
                 </div>
             </div>
+            {% if current_user.is_admin %}
+<div class="card bg-dark text-white mt-4 border-secondary">
+    <div class="card-header bg-danger text-white">
+        <h5 class="mb-0">Painel do Escalante - Gerenciamento de Efetivo</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-dark table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Posto/Graduação e Nome</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Ações Administrativas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in todos_usuarios %}
+                    <tr>
+                        <td>{{ u.graduacao }} {{ u.nome }}</td>
+                        <td>{{ u.email }}</td>
+                        <td>
+                            {% if u.is_approved %}
+                                <span class="badge bg-success">Aprovado</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Pendente</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if not u.is_approved %}
+                                <a href="{{ url_for('aprovar', user_id=u.id) }}" class="btn btn-sm btn-success me-1">Aprovar Cadastro</a>
+                            {% endif %}
+                            <a href="{{ url_for('toggle_admin', user_id=u.id) }}" class="btn btn-sm btn-outline-light">
+                                {% if u.is_admin %} Remover Escalante {% else %} Promover a Escalante {% endif %}
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
         </div>
     </div>
 </body>
