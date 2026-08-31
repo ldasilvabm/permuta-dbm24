@@ -1,18 +1,61 @@
-<div class="mb-3">
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro - DBM 2/4</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light d-flex align-items-center justify-content-center" style="height: 100vh;">
+    <div class="card shadow p-4" style="width: 420px;">
+        <h3 class="text-center mb-3">Cadastro de Militar</h3>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Nome Completo</label>
+                <input type="text" name="nome" class="form-control" required>
+            </div>
+            
+            <div class="mb-3">
                 <label class="form-label">Graduação / Posto</label>
                 <select name="graduacao" class="form-select" required>
                     <option value="" disabled selected>Selecione sua graduação...</option>
-                    <option value="SD BM">Soldado (SD BM)</option>
-                    <option value="CB BM">Cabo (CB BM)</option>
-                    <option value="3º SGT BM">3º Sargento (3º SGT BM)</option>
-                    <option value="2º SGT BM">2º Sargento (2º SGT BM)</option>
-                    <option value="1º SGT BM">1º Sargento (1º SGT BM)</option>
-                    <option value="SUB TEN BM">Subtenente (SUB TEN BM)</option>
-                    <option value="ASP BM">Aspirante (ASP BM)</option>
-                    <option value="TEN BM">Tenente (TEN BM)</option>
-                    <option value="CAP BM">Capitão (CAP BM)</option>
-                    <option value="MAJ BM">Major (MAJ BM)</option>
-                    <option value="TC BM">Tenente-Coronel (TC BM)</option>
-                    <option value="CEL BM">Coronel (CEL BM)</option>
+                    <option value="SD BM">SD BM</option>
+                    <option value="CB BM">CB BM</option>
+                    <option value="3º SGT BM">3º SGT BM</option>
+                    <option value="2º SGT BM">2º SGT BM</option>
+                    <option value="1º SGT BM">1º SGT BM</option>
+                    <option value="SUB TEN BM">SUB TEN BM</option>
+                    <option value="TEN BM">TEN BM</option>
+                    <option value="CAP BM">CAP BM</option>
+                    <option value="MAJ BM">MAJ BM</option>
+                    <option value="TC BM">TC BM</option>
                 </select>
             </div>
+
+            <div class="mb-3">
+                <label class="form-label">E-mail</label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Senha</label>
+                <input type="password" name="senha" class="form-control" required>
+            </div>
+            
+            <button type="submit" class="btn btn-success w-100">Cadastrar</button>
+        </form>
+        
+        <div class="text-center mt-3">
+            <a href="/" class="text-decoration-none">Já tem uma conta? Faça login</a>
+        </div>
+    </div>
+</body>
+</html>
