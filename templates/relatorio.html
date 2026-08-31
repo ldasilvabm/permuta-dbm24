@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Comprovante de Permuta - CBMERJ</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; color: #333; line-height: 1.6; }
+        .header { text-align: center; border-bottom: 3px solid #b71c1c; padding-bottom: 15px; margin-bottom: 30px; }
+        .header h3, .header h4, .header h2 { margin: 5px 0; color: #b71c1c; }
+        .info-box { background: #f9f9f9; border: 1px solid #ddd; padding: 20px; border-radius: 5px; margin-bottom: 25px; }
+        .signature { margin-top: 50px; border-top: 1px solid #999; padding-top: 15px; font-size: 10pt; color: #555; }
+        .btn-print { background-color: #b71c1c; color: white; padding: 12px 25px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; display: block; margin: 20px auto; }
+        @media print { .btn-print { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="/static/brasao.jpeg" width="75" style="margin-bottom: 5px;">
+        <h3>ESTADO DO RIO DE JANEIRO</h3>
+        <h4>CORPO DE BOMBEIROS MILITAR DO ESTADO DO RIO DE JANEIRO</h4>
+        <p>DBM 2/4 (Belford Roxo) - 4º GBM</p>
+        <h2>COMPROVANTE DE PERMUTA DE SERVIÇO</h2>
+    </div>
+    
+    <div class="info-box">
+        <p><strong>Data do Serviço:</strong> {{ p.data_servico.strftime('%d/%m/%Y') }}</p>
+        <p><strong>Militar de Saída:</strong> {{ p.saida.graduacao }} {{ p.saida.nome }} (RG: {{ p.saida.rg }})</p>
+        <p><strong>Militar de Entrada:</strong> {{ p.entrada.graduacao }} {{ p.entrada.nome }} (RG: {{ p.entrada.rg }})</p>
+        <p><strong>Status da Permuta:</strong> <span style="color: #b71c1c; font-weight: bold;">{{ p.status }}</span></p>
+    </div>
+    
+    <h4>Registros de Autenticação e Histórico:</h4>
+    <ul>
+        <li><strong>Assinatura Eletrônica (Saída):</strong> Registrada via login institucional de {{ p.saida.graduacao }} {{ p.saida.nome }} em {{ p.data_criacao.strftime('%d/%m/%Y às %H:%M') }}.</li>
+        <li><strong>Decisão do Escalante:</strong> Validação operacional executada por 2º Sgt L. da Silva no painel DBM 2/4.</li>
+    </ul>
+    
+    <div class="signature">
+        <p>Documento gerado eletronicamente pelo Sistema de Permutas DBM 2/4.<br>
+        Unidade Operacional - CBMERJ</p>
+    </div>
+
+    <button class="btn-print" onclick="window.print()">Imprimir / Salvar em PDF</button>
+</body>
+</html>
